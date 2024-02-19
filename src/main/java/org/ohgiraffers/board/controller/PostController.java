@@ -1,10 +1,12 @@
 package org.ohgiraffers.board.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.ohgiraffers.board.domain.dto.CreatePostRequest;
-import org.ohgiraffers.board.domain.dto.CreatePostResponse;
-import org.ohgiraffers.board.domain.dto.ReadPostResponse;
+import org.ohgiraffers.board.domain.dto.*;
 import org.ohgiraffers.board.service.PostService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -51,6 +53,31 @@ public class PostController {
         ReadPostResponse response = postService.readPostById(postId);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PutMapping("/{postId}")
+    public ResponseEntity<UpdatePostResponse> postUpdate(@PathVariable Long postId, @RequestBody UpdatePostRequest request) {
+
+        UpdatePostResponse response = postService.updatePost(postId, request);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<DeletePostResponse> postDelete(@PathVariable Long postId) {
+
+        DeletePostResponse response = postService.deletePost(postId);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<ReadPostResponse>> postReadAll(
+            @PageableDefault(size = 5, sort = "postId", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Page<ReadPostResponse> responses = postService.readAllPost(pageable);
+
+        return new ResponseEntity<>(responses, HttpStatus.OK);
     }
 }
 
