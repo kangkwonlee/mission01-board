@@ -28,7 +28,7 @@ spring:
   # create-drop : 어플리케이션 시작시 새로운 스키마를 생성하고, 어플리케이션 종료시 스키마를 삭제함.
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL57Dialect
