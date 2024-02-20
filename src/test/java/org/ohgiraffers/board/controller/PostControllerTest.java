@@ -8,8 +8,14 @@ import org.ohgiraffers.board.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -119,6 +125,49 @@ public class PostControllerTest {
                 .andExpect(jsonPath("$.title").value("변경 제목"))
                 .andExpect(jsonPath("$.content").value("변경 내용"))
                 .andDo(print());
+    }
+
+    @Test
+    @DisplayName("게시글 삭제 기능 테스트")
+    void delete_post_test() throws Exception {
+
+        //given
+        Long postId = 1L;
+        DeletePostResponse deletePostResponse = new DeletePostResponse(postId);
+
+        given(postService.deletePost(any(Long.class))).willReturn(deletePostResponse);
+
+        //when & then
+        mockMvc.perform(delete("/api/v1/posts/{postId}", postId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.postId").value(1L))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("모든 게시글을 페이지 단위로 조회하는 기능 테스트")
+    void read_all_post_test() throws Exception{
+
+        //given
+        int page = 0;
+        int size = 5;
+        PageRequest pageRequest = PageRequest.of(page,size);
+        ReadPostResponse readPostResponse = new ReadPostResponse(1L, "테스트 제목", "테스트 내용");
+        List<ReadPostResponse> responses = new ArrayList<>();
+        responses.add(readPostResponse);
+
+        Page<ReadPostResponse> pageResponses = new PageImpl<>(responses, pageRequest, responses.size());
+
+        given(postService.readAllPost(any())).willReturn(pageResponses);
+
+        //when & then
+        mockMvc.perform(get("/api/v1/posts"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].postId").value(readPostResponse.getPostId()))
+                .andExpect(jsonPath("$.content[0].title").value(readPostResponse.getTitle()))
+                .andExpect(jsonPath("$.content[0].content").value(readPostResponse.getContent()))
+                .andDo(print());
+
     }
 }
 
