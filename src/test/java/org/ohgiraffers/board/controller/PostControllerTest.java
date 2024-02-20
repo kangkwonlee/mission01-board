@@ -3,9 +3,7 @@ package org.ohgiraffers.board.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.ohgiraffers.board.domain.dto.CreatePostRequest;
-import org.ohgiraffers.board.domain.dto.CreatePostResponse;
-import org.ohgiraffers.board.domain.dto.ReadPostResponse;
+import org.ohgiraffers.board.domain.dto.*;
 import org.ohgiraffers.board.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -15,18 +13,18 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-/** 통합테스트 & 단위테스트
+/**
+ * 통합테스트 & 단위테스트
  * 통합테스트 :
  * 모듈을 통합하는 과정에서 모듈 간의 호환성을 확인하기 위해 수행되는 테스트
  * 통합테스트는 API의 모든 과정이 올바르게 동작하는지 확인하는 것
- *
+ * <p>
  * 단위(유닛)테스트 :
  * 하나의 모듈을 기준으로 독립적으로 진행되는 가장 작은 단위의 테스트 (작은 단위 = 함수, 메소드)
  * 단위테스트는 어플리케이션을 구성하는 하나의 기능이 올바르게 동작하는지 독립적으로 테스트하는 것
@@ -70,9 +68,9 @@ public class PostControllerTest {
 
         //when & then
         mockMvc.perform(post("/api/v1/posts")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(request))
-        )
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(request))
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.postId").value(1L))
                 .andExpect(jsonPath("$.title").value("테스트 제목"))
@@ -97,6 +95,29 @@ public class PostControllerTest {
                 .andExpect(jsonPath("$.postId").value(1L))
                 .andExpect(jsonPath("$.title").value("테스트 제목"))
                 .andExpect(jsonPath("$.content").value("테스트 내용"))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("게시글 수정 기능 테스트")
+    void update_post_test() throws Exception {
+
+        //given
+        Long postId = 1L;
+        UpdatePostRequest request = new UpdatePostRequest("변경 제목", "변경 내용");
+        UpdatePostResponse response = new UpdatePostResponse(1L, "변경 제목", "변경 내용");
+
+        given(postService.updatePost(any(Long.class), any(UpdatePostRequest.class))).willReturn(response);
+
+        //when & then
+        mockMvc.perform(put("/api/v1/posts/{postId}", postId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(request))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.postId").value(1L))
+                .andExpect(jsonPath("$.title").value("변경 제목"))
+                .andExpect(jsonPath("$.content").value("변경 내용"))
                 .andDo(print());
     }
 }
