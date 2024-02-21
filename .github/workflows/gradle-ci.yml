@@ -1,4 +1,4 @@
-name: Esxample CI
+name: Example CI
 
 on:
   push:
