@@ -30,6 +30,7 @@ import lombok.*;
 @NoArgsConstructor( access = AccessLevel.PROTECTED)
 public class Post {
 
+
     @Id
     @GeneratedValue
     private Long postId;
